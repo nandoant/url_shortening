@@ -3,6 +3,8 @@ package com.example.url_shortening.service;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.sqids.Sqids;
 
 import com.example.url_shortening.model.Url;
@@ -10,8 +12,10 @@ import com.example.url_shortening.model.dto.UrlDto;
 import com.example.url_shortening.repository.UrlRepository;
 import io.micrometer.common.util.StringUtils;
 
+@Component
 public class UrlServiceImpl implements UrlService {
 
+    @Autowired
     UrlRepository urlRepository;
 
     @Override
@@ -24,7 +28,13 @@ public class UrlServiceImpl implements UrlService {
             LocalDateTime DateTimeNow = LocalDateTime.now();
             urlToPersist.setCreationDate(DateTimeNow);
             urlToPersist.setExpirationDate(DateTimeNow.plusSeconds(60));
-            return persistShortLink(urlToPersist);
+            Url shortenedUrl = persistShortLink(urlToPersist);
+
+            if(shortenedUrl != null){
+                return shortenedUrl;
+            }
+            
+            return null;
         }
 
         return null;
@@ -48,11 +58,12 @@ public class UrlServiceImpl implements UrlService {
 
     @Override
     public Url getEncodedUrl(String url) {
-        return null;
+        Url foundUrl = urlRepository.findByShortUrl(url);
+        return foundUrl;
     }
 
     @Override
     public void deleteShortLink(Url url) {
-
+        urlRepository.delete(url);
     }
 }
