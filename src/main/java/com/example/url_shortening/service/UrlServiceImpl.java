@@ -18,12 +18,13 @@ public class UrlServiceImpl implements UrlService {
     public Url generateShortLink(UrlDto urlDto) {
         if(StringUtils.isNotEmpty(urlDto.getUrl())){
             String encodedUrl = encodeUrl(urlDto.getUrl());
-            Url url = new Url();
-            url.setOriginalUrl(urlDto.getUrl());
-            url.setShortUrl(encodedUrl);
-            url.setCreationDate(LocalDateTime.now());
-            url.setExpirationDate(LocalDateTime.now().plusSeconds(60));
-            return persistShortLink(url);
+            Url urlToPersist = new Url();
+            urlToPersist.setLongUrl(urlDto.getUrl());
+            urlToPersist.setShortUrl(encodedUrl);
+            LocalDateTime DateTimeNow = LocalDateTime.now();
+            urlToPersist.setCreationDate(DateTimeNow);
+            urlToPersist.setExpirationDate(DateTimeNow.plusSeconds(60));
+            return persistShortLink(urlToPersist);
         }
 
         return null;

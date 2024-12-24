@@ -13,14 +13,14 @@ public class Url {
     @GeneratedValue
     private long id;
     @Lob
-    private String originalUrl;
+    private String longUrl;
     private String shortUrl;
     private LocalDateTime creationDate;
     private LocalDateTime expirationDate;
 
     public Url(long id, String originalUrl, String shortUrl, LocalDateTime creationDate, LocalDateTime expirationDate) {
         this.id = id;
-        this.originalUrl = originalUrl;
+        this.longUrl = originalUrl;
         this.shortUrl = shortUrl;
         this.creationDate = creationDate;
         this.expirationDate = expirationDate;
@@ -37,12 +37,12 @@ public class Url {
         this.id = id;
     }
 
-    public String getOriginalUrl() {
-        return originalUrl;
+    public String getLongUrl() {
+        return longUrl;
     }
 
-    public void setOriginalUrl(String originalUrl) {
-        this.originalUrl = originalUrl;
+    public void setLongUrl(String originalUrl) {
+        this.longUrl = originalUrl;
     }
 
     public String getShortUrl() {
@@ -73,7 +73,7 @@ public class Url {
     public String toString() {
         return "Url{" +
                 "id=" + id +
-                ", originalUrl='" + originalUrl + '\'' +
+                ", originalUrl='" + longUrl + '\'' +
                 ", shortUrl='" + shortUrl + '\'' +
                 ", creationDate=" + creationDate +
                 ", expirationDate=" + expirationDate +
