@@ -5,7 +5,7 @@ import com.example.url_shortening.model.dto.UrlDto;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UrlService {
+public interface UrlService {
     public Url generateShortLink(UrlDto urlDto);
     public Url persistShortLink(Url url);
     public Url getEncodedUrl(String url);
