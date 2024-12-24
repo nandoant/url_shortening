@@ -1,5 +1,10 @@
 package com.example.url_shortening.service;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
+import org.sqids.Sqids;
+
 import com.example.url_shortening.model.Url;
 import com.example.url_shortening.model.dto.UrlDto;
 import com.example.url_shortening.repository.UrlRepository;
@@ -11,22 +16,33 @@ public class UrlServiceImpl implements UrlService {
 
     @Override
     public Url generateShortLink(UrlDto urlDto) {
-
         if(StringUtils.isNotEmpty(urlDto.getUrl())){
-            String encoded = encodeUrl(urlDto.getUrl());
+            String encodedUrl = encodeUrl(urlDto.getUrl());
+            Url url = new Url();
+            url.setOriginalUrl(urlDto.getUrl());
+            url.setShortUrl(encodedUrl);
+            url.setCreationDate(LocalDateTime.now());
+            url.setExpirationDate(LocalDateTime.now().plusSeconds(60));
+            return persistShortLink(url);
         }
+
         return null;
     }
 
     private String encodeUrl(String url) {
-        String encodedUrl = null;
-        urlRepository.count();
-        return encodedUrl;
+        Sqids sqids = Sqids.builder()
+                .alphabet("x9uKkSHvNrq6OYRsFfi7jDPdG58EAb0ILhQ34lcnXzWZToUV2twJeagmpy1CMB")
+                .minLength(6)
+                .build();
+        
+        long nextId = urlRepository.count() + 1;
+
+        return sqids.encode(Arrays.asList(nextId));  
     }
 
     @Override
     public Url persistShortLink(Url url) {
-        return null;
+        return urlRepository.save(url);
     }
 
     @Override
