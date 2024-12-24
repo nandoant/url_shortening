@@ -26,6 +26,9 @@ public class Url {
         this.expirationDate = expirationDate;
     }
 
+    public Url() {
+    }
+
     public long getId() {
         return id;
     }
