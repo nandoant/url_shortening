@@ -2,6 +2,7 @@ package com.example.url_shortening.service;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,7 @@ public class UrlServiceImpl implements UrlService {
             if(shortenedUrl != null){
                 return shortenedUrl;
             }
-            
+
             return null;
         }
 
@@ -48,7 +49,7 @@ public class UrlServiceImpl implements UrlService {
         
         long nextId = urlRepository.count() + 1;
 
-        return sqids.encode(Arrays.asList(nextId));  
+        return sqids.encode(List.of(nextId));
     }
 
     @Override
