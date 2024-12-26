@@ -16,7 +16,7 @@ import io.micrometer.common.util.StringUtils;
 public class UrlServiceImpl implements UrlService {
 
     @Autowired
-    UrlRepository urlRepository;
+    private UrlRepository urlRepository;
 
     @Override
     public Url generateShortLink(UrlDto urlDto) {
@@ -53,7 +53,8 @@ public class UrlServiceImpl implements UrlService {
 
     @Override
     public Url persistShortLink(Url url) {
-        return urlRepository.save(url);
+        Url urlToSave = urlRepository.save(url);
+        return urlToSave;
     }
 
     @Override
