@@ -79,4 +79,46 @@ public class Url {
                 ", expirationDate=" + expirationDate +
                 '}';
     }
+
+    public static class UrlBuilder {
+        private long id;
+        private String longUrl;
+        private String shortUrl;
+        private LocalDateTime creationDate;
+        private LocalDateTime expirationDate;
+
+        public UrlBuilder id(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public UrlBuilder longUrl(String longUrl) {
+            this.longUrl = longUrl;
+            return this;
+        }
+
+        public UrlBuilder shortUrl(String shortUrl) {
+            this.shortUrl = shortUrl;
+            return this;
+        }
+
+        public UrlBuilder creationDate(LocalDateTime creationDate) {
+            this.creationDate = creationDate;
+            return this;
+        }
+
+        public UrlBuilder expirationDate(LocalDateTime expirationDate) {
+            this.expirationDate = expirationDate;
+            return this;
+        }
+
+        public Url build() {
+            return new Url(id, longUrl, shortUrl, creationDate, expirationDate);
+        }
+    }
+
+    public static UrlBuilder builder() {
+        return new UrlBuilder();
+    }
+
 }
