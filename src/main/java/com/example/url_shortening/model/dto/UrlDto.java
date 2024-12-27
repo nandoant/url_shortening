@@ -3,11 +3,11 @@ package com.example.url_shortening.model.dto;
 
 public class UrlDto {
     private String url;
-    private String expirationDate;
+    private long expirationTimeInSeconds;
 
-    public UrlDto(String url, String expirationDate) {
+    public UrlDto(String url, long expirationTimeInSeconds) {
         this.url = url;
-        this.expirationDate = expirationDate;
+        this.expirationTimeInSeconds = expirationTimeInSeconds;
     }
 
     public String getUrl() {
@@ -18,19 +18,19 @@ public class UrlDto {
         this.url = url;
     }
 
-    public String getExpirationDate() {
-        return expirationDate;
+    public long getExpirationTimeInSeconds() {
+        return expirationTimeInSeconds;
     }
 
-    public void setExpirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
+    public void setExpirationTimeInSeconds(long expirationTimeInSeconds) {
+        this.expirationTimeInSeconds = expirationTimeInSeconds;
     }
 
     @Override
     public String toString() {
         return "UrlDto{" +
                 "url='" + url + '\'' +
-                ", expirationDate='" + expirationDate + '\'' +
+                ", expirationDate='" + expirationTimeInSeconds + '\'' +
                 '}';
     }
 }
