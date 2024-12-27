@@ -22,7 +22,7 @@ public class UrlServiceImpl implements UrlService {
     @Override
     public Url generateShortLink(UrlDto urlDto) {
         if(StringUtils.isNotEmpty(urlDto.getUrl().trim())){
-            String encodedUrl = encodeUrl(urlDto.getUrl());
+            String encodedUrl = encodeUrl();
 
             Url urlToPersist = getUrlToPersist(urlDto, encodedUrl);
 
@@ -52,7 +52,7 @@ public class UrlServiceImpl implements UrlService {
         }
     }
 
-    private String encodeUrl(String url) {
+    private String encodeUrl() {
         Sqids sqids = Sqids.builder()
                 .alphabet("x9uKkSHvNrq6OYRsFfi7jDPdG58EAb0ILhQ34lcnXzWZToUV2twJeagmpy1CMB")
                 .minLength(6)
