@@ -3,11 +3,13 @@ package com.example.url_shortening.model.dto;
 
 public class UrlDto {
     private String url;
+    private String suggestedShortLink;
     private long expirationTimeInSeconds;
 
-    public UrlDto(String url, long expirationTimeInSeconds) {
+    public UrlDto(String url, long expirationTimeInSeconds, String shortLink) {
         this.url = url;
         this.expirationTimeInSeconds = expirationTimeInSeconds;
+        this.suggestedShortLink = shortLink;
     }
 
     public String getUrl() {
@@ -16,6 +18,14 @@ public class UrlDto {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getSuggestedShortLink() {
+        return suggestedShortLink;
+    }
+
+    public void setSuggestedShortLink(String shortLink) {
+        this.suggestedShortLink = shortLink;
     }
 
     public long getExpirationTimeInSeconds() {
@@ -30,7 +40,8 @@ public class UrlDto {
     public String toString() {
         return "UrlDto{" +
                 "url='" + url + '\'' +
-                ", expirationDate='" + expirationTimeInSeconds + '\'' +
+                ", shortLink='" + suggestedShortLink + '\'' +
+                ", expirationTimeInSeconds=" + expirationTimeInSeconds +
                 '}';
     }
 }
