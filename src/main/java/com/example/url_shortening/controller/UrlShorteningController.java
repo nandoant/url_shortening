@@ -6,7 +6,6 @@ import com.example.url_shortening.model.dto.UrlErrorResponseDto;
 import com.example.url_shortening.model.dto.UrlResponseDto;
 import com.example.url_shortening.service.UrlService;
 import io.micrometer.common.util.StringUtils;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,25 +20,30 @@ public class UrlShorteningController {
 
     @Autowired
     private UrlService urlService;
-    @Autowired
-    private ServletResponse servletResponse;
 
     @PostMapping("/generate")
     public ResponseEntity<?> generateShortLink(@RequestBody UrlDto urlDto) {
-        Url newShortLink = urlService.generateShortLink(urlDto);
+        try{
+            Url newShortLink = urlService.generateShortLink(urlDto);
 
-        if (newShortLink != null) {
-            UrlResponseDto urlResonse = new UrlResponseDto();
-            urlResonse.setOriginalUrl(newShortLink.getLongUrl());
-            urlResonse.setShortLink(newShortLink.getShortUrl());
-            urlResonse.setExpirationDate(newShortLink.getExpirationDate());
-            return new ResponseEntity<UrlResponseDto>(urlResonse, HttpStatus.OK);
+            if (newShortLink != null) {
+                UrlResponseDto urlResonse = new UrlResponseDto();
+                urlResonse.setOriginalUrl(newShortLink.getLongUrl());
+                urlResonse.setShortLink(newShortLink.getShortUrl());
+                urlResonse.setExpirationDate(newShortLink.getExpirationDate());
+                return new ResponseEntity<UrlResponseDto>(urlResonse, HttpStatus.OK);
+            }
+
+            UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
+            urlErrorResponse.setStatus("404");
+            urlErrorResponse.setError("There was an error generating the link. Please try again.");
+            return new ResponseEntity<UrlErrorResponseDto>(urlErrorResponse, HttpStatus.OK);
+        } catch (Exception UrlAlreadyExistsException) {
+            UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
+            urlErrorResponse.setStatus("400");
+            urlErrorResponse.setError("Url already exists. Please try again.");
+            return new ResponseEntity<>(urlErrorResponse, HttpStatus.BAD_REQUEST);
         }
-
-        UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
-        urlErrorResponse.setStatus("404");
-        urlErrorResponse.setError("There was an error generating the link. Please try again.");
-        return new ResponseEntity<UrlErrorResponseDto>(urlErrorResponse, HttpStatus.OK);
     }
 
     @GetMapping("/{shortLink}")
