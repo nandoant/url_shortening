@@ -11,15 +11,12 @@ import org.sqids.Sqids;
 import com.example.url_shortening.model.Url;
 import com.example.url_shortening.model.dto.UrlDto;
 import com.example.url_shortening.model.exception.UrlAlreadyExistsException;
+import com.example.url_shortening.model.exception.UrlException;
 import com.example.url_shortening.repository.UrlRepository;
-
+import com.example.url_shortening.config.*;;
 
 @Component
 public class UrlServiceImpl implements UrlService {
-
-    private static final long DEFAULT_EXPIRATION_TIME_SECONDS = 60;
-    private static final String URL_ALPHABET = "x9uKkSHvNrq6OYRsFfi7jDPdG58EAb0ILhQ34lcnXzWZToUV2twJeagmpy1CMB";
-    private static final int SHORT_URL_MIN_LENGTH = 6;
     
     private final UrlRepository urlRepository;
     private final Sqids sqids;
@@ -27,8 +24,8 @@ public class UrlServiceImpl implements UrlService {
     public UrlServiceImpl(UrlRepository urlRepository) {
         this.urlRepository = urlRepository;
         this.sqids = Sqids.builder()
-                .alphabet(URL_ALPHABET)
-                .minLength(SHORT_URL_MIN_LENGTH)
+                .alphabet(UrlConfig.URL_ALPHABET)
+                .minLength(UrlConfig.SHORT_URL_MIN_LENGTH)
                 .build();
     }
 
@@ -42,13 +39,19 @@ public class UrlServiceImpl implements UrlService {
 
     private void validateUrlDto(UrlDto urlDto) {
         if (urlDto == null) {
-            throw new IllegalArgumentException("UrlDto cannot be null");
+            throw new UrlException("UrlDto cannot be null");
         }
         if (!StringUtils.hasText(urlDto.getUrl())) {
-            throw new IllegalArgumentException("URL cannot be empty or blank");
+            throw new UrlException("URL cannot be empty or blank");
         }
         if (!isValidUrl(urlDto.getUrl())) {
-            throw new IllegalArgumentException("Invalid URL format");
+            throw new UrlException("Invalid URL format");
+        }
+        if (urlDto.getExpirationTimeInSeconds() < 0) {
+            throw new UrlException("Expiration time cannot be negative");
+        }
+        if (urlDto.getExpirationTimeInSeconds() > 0 && urlDto.getExpirationTimeInSeconds() > UrlConfig.MAX_EXPIRATION_TIME_SECONDS){
+            throw new UrlException("Expiration time cannot be greater than "+ UrlConfig.MAX_EXPIRATION_TIME_SECONDS + " seconds");
         }
     }
 
@@ -72,7 +75,7 @@ public class UrlServiceImpl implements UrlService {
     }
 
     private LocalDateTime calculateExpirationDate(LocalDateTime creationDate, long expirationSeconds) {
-        long effectiveExpiration = expirationSeconds > 0 ? expirationSeconds : DEFAULT_EXPIRATION_TIME_SECONDS;
+        long effectiveExpiration = expirationSeconds > 0 ? expirationSeconds : UrlConfig.DEFAULT_EXPIRATION_TIME_SECONDS;
         return creationDate.plusSeconds(effectiveExpiration);
     }
 
@@ -107,7 +110,6 @@ public class UrlServiceImpl implements UrlService {
 
     @Override
     public Url persistShortLink(Url url) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'persistShortLink'");
+        return urlRepository.save(url);
     }
 }
