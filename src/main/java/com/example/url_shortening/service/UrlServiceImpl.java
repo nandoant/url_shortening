@@ -2,7 +2,6 @@ package com.example.url_shortening.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.net.URL;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -13,6 +12,9 @@ import com.example.url_shortening.model.dto.UrlDto;
 import com.example.url_shortening.model.exception.UrlAlreadyExistsException;
 import com.example.url_shortening.model.exception.UrlException;
 import com.example.url_shortening.repository.UrlRepository;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.url_shortening.config.*;;
 
 @Component
@@ -41,26 +43,8 @@ public class UrlServiceImpl implements UrlService {
         if (urlDto == null) {
             throw new UrlException("UrlDto cannot be null");
         }
-        if (!StringUtils.hasText(urlDto.getUrl())) {
-            throw new UrlException("URL cannot be empty or blank");
-        }
-        if (!isValidUrl(urlDto.getUrl())) {
+        if (!urlDto.isValidUrl()) {
             throw new UrlException("Invalid URL format");
-        }
-        if (urlDto.getExpirationTimeInSeconds() < 0) {
-            throw new UrlException("Expiration time cannot be negative");
-        }
-        if (urlDto.getExpirationTimeInSeconds() > 0 && urlDto.getExpirationTimeInSeconds() > UrlConfig.MAX_EXPIRATION_TIME_SECONDS){
-            throw new UrlException("Expiration time cannot be greater than "+ UrlConfig.MAX_EXPIRATION_TIME_SECONDS + " seconds");
-        }
-    }
-
-    private boolean isValidUrl(String url) {
-        try {
-            new URL(url).toURI();
-            return true;
-        } catch (Exception e) {
-            return false;
         }
     }
 
@@ -99,11 +83,13 @@ public class UrlServiceImpl implements UrlService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Url getEncodedUrl(String shortUrl) {
         return urlRepository.findByShortUrl(shortUrl);
     }
 
     @Override
+    @Transactional
     public void deleteShortLink(Url url) {
         urlRepository.delete(url);
     }
