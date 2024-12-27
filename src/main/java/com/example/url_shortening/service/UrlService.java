@@ -6,9 +6,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface UrlService {
-    public Url generateShortLink(UrlDto urlDto) throws Exception;
-    public Url persistShortLink(Url url);
-    public Url getEncodedUrl(String url);
-    public void deleteShortLink(Url url);
-
+    Url generateShortLink(UrlDto urlDto) throws Exception;
+    Url persistShortLink(Url url);
+    Url getEncodedUrl(String url);
+    void deleteShortLink(Url url);
 }
