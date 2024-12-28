@@ -1,5 +1,8 @@
 package com.example.url_shortening.model.dto;
 
+import lombok.Builder;
+
+@Builder
 public class UrlErrorResponseDto {
     private String status;
     private String error;
