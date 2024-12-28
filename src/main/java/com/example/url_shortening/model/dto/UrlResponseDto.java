@@ -2,6 +2,9 @@ package com.example.url_shortening.model.dto;
 
 import java.time.LocalDateTime;
 
+import lombok.Builder;
+
+@Builder
 public class UrlResponseDto {
     private String originalUrl;
     private String shortLink;
