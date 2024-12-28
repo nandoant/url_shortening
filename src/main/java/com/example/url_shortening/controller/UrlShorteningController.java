@@ -4,9 +4,12 @@ import com.example.url_shortening.model.Url;
 import com.example.url_shortening.model.dto.UrlDto;
 import com.example.url_shortening.model.dto.UrlErrorResponseDto;
 import com.example.url_shortening.model.dto.UrlResponseDto;
+import com.example.url_shortening.model.exception.UrlAlreadyExistsException;
+import com.example.url_shortening.model.exception.UrlException;
 import com.example.url_shortening.service.UrlService;
 import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +25,7 @@ public class UrlShorteningController {
     private UrlService urlService;
 
     @PostMapping("/generate")
-    public ResponseEntity<?> generateShortLink(@RequestBody UrlDto urlDto) {
+    public ResponseEntity<?> generateShortLink(@Valid @RequestBody UrlDto urlDto) {
         try{
             Url newShortLink = urlService.generateShortLink(urlDto);
 
@@ -38,11 +41,21 @@ public class UrlShorteningController {
             urlErrorResponse.setStatus("404");
             urlErrorResponse.setError("There was an error generating the link. Please try again.");
             return new ResponseEntity<UrlErrorResponseDto>(urlErrorResponse, HttpStatus.OK);
-        } catch (Exception UrlAlreadyExistsException) {
+        } catch (UrlAlreadyExistsException e) {
             UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
             urlErrorResponse.setStatus("400");
             urlErrorResponse.setError("Url already exists. Please try again.");
             return new ResponseEntity<>(urlErrorResponse, HttpStatus.BAD_REQUEST);
+        } catch (UrlException e) {
+            UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
+            urlErrorResponse.setStatus("400");
+            urlErrorResponse.setError("Invalid url. Please try again.");
+            return new ResponseEntity<>(urlErrorResponse, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
+            urlErrorResponse.setStatus("404");
+            urlErrorResponse.setError("There was an error generating the link. Please try again.");
+            return new ResponseEntity<>(urlErrorResponse, HttpStatus.OK);
         }
     }
 
