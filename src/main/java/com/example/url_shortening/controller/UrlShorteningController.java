@@ -4,13 +4,14 @@ import com.example.url_shortening.model.Url;
 import com.example.url_shortening.model.dto.UrlDto;
 import com.example.url_shortening.model.dto.UrlErrorResponseDto;
 import com.example.url_shortening.model.dto.UrlResponseDto;
-import com.example.url_shortening.model.exception.UrlAlreadyExistsException;
-import com.example.url_shortening.model.exception.UrlException;
 import com.example.url_shortening.service.UrlService;
 import io.micrometer.common.util.StringUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,73 +20,71 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 @RestController
+@RequestMapping("/api/v1/urls")
+@RequiredArgsConstructor
+@Tag(name = "URL Shortening API", description = "API for shortening and redirecting URLs")
 public class UrlShorteningController {
 
-    @Autowired
-    private UrlService urlService;
+    private static final String URL_NOT_FOUND = "URL does not exist or it might have expired.";
+    private static final String INVALID_URL = "Invalid URL. Please try again.";
+    private static final String URL_EXPIRED = "URL has expired.";
 
-    @PostMapping("/generate")
-    public ResponseEntity<?> generateShortLink(@Valid @RequestBody UrlDto urlDto) {
-        try{
-            Url newShortLink = urlService.generateShortLink(urlDto);
+    private final UrlService urlService;
 
-            if (newShortLink != null) {
-                UrlResponseDto urlResonse = new UrlResponseDto();
-                urlResonse.setOriginalUrl(newShortLink.getLongUrl());
-                urlResonse.setShortLink(newShortLink.getShortUrl());
-                urlResonse.setExpirationDate(newShortLink.getExpirationDate());
-                return new ResponseEntity<UrlResponseDto>(urlResonse, HttpStatus.OK);
-            }
-
-            UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
-            urlErrorResponse.setStatus("404");
-            urlErrorResponse.setError("There was an error generating the link. Please try again.");
-            return new ResponseEntity<UrlErrorResponseDto>(urlErrorResponse, HttpStatus.OK);
-        } catch (UrlAlreadyExistsException e) {
-            UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
-            urlErrorResponse.setStatus("400");
-            urlErrorResponse.setError("Url already exists. Please try again.");
-            return new ResponseEntity<>(urlErrorResponse, HttpStatus.BAD_REQUEST);
-        } catch (UrlException e) {
-            UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
-            urlErrorResponse.setStatus("400");
-            urlErrorResponse.setError("Invalid url. Please try again.");
-            return new ResponseEntity<>(urlErrorResponse, HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
-            urlErrorResponse.setStatus("404");
-            urlErrorResponse.setError("There was an error generating the link. Please try again.");
-            return new ResponseEntity<>(urlErrorResponse, HttpStatus.OK);
+    @PostMapping("/shorten")
+    @Operation(summary = "Generate short URL")
+    @ApiResponse(responseCode = "200", description = "URL successfully shortened")
+    @ApiResponse(responseCode = "400", description = "Invalid URL provided")
+    public ResponseEntity<Object> generateShortLink(@Valid @RequestBody UrlDto urlDto) throws Exception {
+        Url newShortLink = urlService.generateShortLink(urlDto);
+        
+        if (newShortLink != null) {
+            UrlResponseDto response = UrlResponseDto.builder()
+                    .originalUrl(newShortLink.getLongUrl())
+                    .shortLink(newShortLink.getShortUrl())
+                    .expirationDate(newShortLink.getExpirationDate())
+                    .build();
+            
+            return ResponseEntity.ok(response);
         }
+        
+        return ResponseEntity.badRequest()
+                .body(createErrorResponse(HttpStatus.BAD_REQUEST.value(), INVALID_URL));
     }
 
     @GetMapping("/{shortLink}")
-    public ResponseEntity<?> redirectToOriginalUrl(@PathVariable String shortLink, HttpServletResponse httpServletResponse) throws IOException {
+    @Operation(summary = "Redirect to original URL")
+    @ApiResponse(responseCode = "302", description = "Successful redirect")
+    @ApiResponse(responseCode = "404", description = "URL not found or expired")
+    public ResponseEntity<Object> redirectToOriginalUrl(
+            @PathVariable String shortLink,
+            HttpServletResponse response) throws IOException {
+
         if (StringUtils.isEmpty(shortLink)) {
-            UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
-            urlErrorResponse.setStatus("400");
-            urlErrorResponse.setError("Invalid url. Please try again.");
-            return new ResponseEntity<>(urlErrorResponse, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest()
+                    .body(createErrorResponse(HttpStatus.BAD_REQUEST.value(), INVALID_URL));
         }
 
         Url urlFound = urlService.getEncodedUrl(shortLink);
 
         if (urlFound == null) {
-            UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
-            urlErrorResponse.setStatus("404");
-            urlErrorResponse.setError("Url does not exist or it might have expired.");
-            return new ResponseEntity<>(urlErrorResponse, HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound()
+                    .build();
         }
 
         if (urlFound.getExpirationDate().isBefore(LocalDateTime.now())) {
-            UrlErrorResponseDto urlErrorResponse = new UrlErrorResponseDto();
-            urlErrorResponse.setStatus("404");
-            urlErrorResponse.setError("Url Expired.");
-            return new ResponseEntity<>(urlErrorResponse, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.GONE)
+                    .body(createErrorResponse(HttpStatus.GONE.value(), URL_EXPIRED));
         }
 
-
-        httpServletResponse.sendRedirect(urlFound.getLongUrl());
+        response.sendRedirect(urlFound.getLongUrl());
         return null;
+    }
+
+    private UrlErrorResponseDto createErrorResponse(int status, String message) {
+        return UrlErrorResponseDto.builder()
+                .status(String.valueOf(status))
+                .error(message)
+                .build();
     }
 }
