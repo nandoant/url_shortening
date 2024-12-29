@@ -3,20 +3,25 @@ package com.example.url_shortening.model.dto;
 
 import java.net.URL;
 import com.example.url_shortening.config.UrlConfig;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
+@Schema(description = "Data Transfer Object for URL operations")
 public class UrlDto {
+    @Schema(description = "Original URL to be shortened", example = "https://www.example.com")
     @NotBlank(message = "URL cannot be empty or blank")
     private String url;
 
+    @Schema(description = "Custom short link suggestion", example = "custom_link")
     private String suggestedShortLink;
 
+    @Schema(description = "Expiration time in seconds", example = "3600")
     @Min(value = 0, message = "Expiration time cannot be negative")
     @Max(value = UrlConfig.MAX_EXPIRATION_TIME_SECONDS,
     message = "Expiration time cannot be greater than "+ UrlConfig.MAX_EXPIRATION_TIME_SECONDS +" seconds")
-
     private long expirationTimeInSeconds;
 
     public UrlDto(String url, long expirationTimeInSeconds, String shortLink) {
@@ -45,6 +50,7 @@ public class UrlDto {
         return expirationTimeInSeconds;
     }
 
+    @Schema(hidden = true)
     public boolean isValidUrl() {
         try {
             new URL(url).toURI();
