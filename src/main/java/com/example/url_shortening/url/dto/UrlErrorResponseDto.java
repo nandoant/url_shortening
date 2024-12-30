@@ -1,10 +1,17 @@
 package com.example.url_shortening.url.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
+@Schema(name = "UrlErrorResponseDto", description = "Response DTO for error response")
 public class UrlErrorResponseDto {
+    @Schema(description = "Status of the response",
+            example = "400")
     private String status;
+
+    @Schema(description = "Error message",
+            example = "Invalid URL")
     private String error;
 
     public UrlErrorResponseDto(String status, String error) {
