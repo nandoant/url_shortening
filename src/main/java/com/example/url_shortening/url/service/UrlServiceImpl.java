@@ -85,7 +85,17 @@ public class UrlServiceImpl implements UrlService {
     @Override
     @Transactional(readOnly = true)
     public Url getEncodedUrl(String shortUrl) {
-        return urlRepository.findByShortUrl(shortUrl);
+        Url shortLink = urlRepository.findByShortUrl(shortUrl);
+        if (shortLink == null) {
+            throw new BaseUrlException(UrlErrorCode.URL_NOT_FOUND);
+        }
+
+        if (shortLink.getExpirationDate().isBefore(LocalDateTime.now())) {
+            deleteShortLink(shortLink);
+            throw new BaseUrlException(UrlErrorCode.URL_EXPIRED);
+        }
+
+        return shortLink;
     }
 
     @Override
