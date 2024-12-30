@@ -11,17 +11,21 @@ import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "Data Transfer Object for URL operations")
 public class UrlDto {
-    @Schema(description = "Original URL to be shortened", example = "https://www.example.com")
+    @Schema(description = "Original URL to be shortened", 
+            example = "https://www.example.com")
     @NotBlank(message = "URL cannot be empty or blank")
     private String url;
 
-    @Schema(description = "Custom short link suggestion", example = "custom_link")
+    @Schema(description = "Custom short link suggestion", 
+            example = "custom_link")
     private String suggestedShortLink;
 
-    @Schema(description = "Expiration time in seconds", example = "3600")
+    @Schema(description = "Expiration time in seconds", 
+            example = "3600")
     @Min(value = 0, message = "Expiration time cannot be negative")
     @Max(value = UrlConfig.MAX_EXPIRATION_TIME_SECONDS,
-    message = "Expiration time cannot be greater than "+ UrlConfig.MAX_EXPIRATION_TIME_SECONDS +" seconds")
+        message = "Expiration time cannot be greater than "+ UrlConfig.MAX_EXPIRATION_TIME_SECONDS +" seconds"
+        )
     private long expirationTimeInSeconds;
 
     public UrlDto(String url, long expirationTimeInSeconds, String shortLink) {
