@@ -91,7 +91,6 @@ public class UrlServiceImpl implements UrlService {
         }
 
         if (shortLink.getExpirationDate().isBefore(LocalDateTime.now())) {
-            deleteShortLink(shortLink);
             throw new BaseUrlException(UrlErrorCode.URL_EXPIRED);
         }
 
