@@ -1,5 +1,7 @@
-package com.example.url_shortening.url.exception;
+package com.example.url_shortening.exception;
 
+import com.example.url_shortening.url.exception.BaseUrlException;
+import com.example.url_shortening.url.exception.UrlErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
