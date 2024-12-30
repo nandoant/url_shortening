@@ -1,6 +1,6 @@
 package com.example.url_shortening.url.controller;
 
-import org.springframework.http.HttpStatus;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,7 +60,7 @@ public class UrlShorteningController {
                     .shortLink(shortenedUrl.getShortUrl())
                     .expirationDate(shortenedUrl.getExpirationDate())
                     .build();
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return ResponseEntity.ok(response);
         } catch (BaseUrlException e) {
             throw e;
         } catch (Exception e) {
@@ -88,16 +88,13 @@ public class UrlShorteningController {
             content = @Content(schema = @Schema(implementation = UrlErrorResponseDto.class))
         )
     })
-    public ResponseEntity<UrlResponseDto> getOriginalUrl(@PathVariable String shortUrl) {
+    public ResponseEntity<UrlResponseDto> redirectToOriginalUrl(@PathVariable String shortUrl, HttpServletResponse response) {
         try {
             Url url = urlService.getEncodedUrl(shortUrl);
 
-            UrlResponseDto response = UrlResponseDto.builder()
-                    .originalUrl(url.getLongUrl())
-                    .shortLink(url.getShortUrl())
-                    .expirationDate(url.getExpirationDate())
-                    .build();
-            return ResponseEntity.ok(response);
+                response.sendRedirect(url.getLongUrl());
+
+            return null;
         } catch (BaseUrlException e) {
             throw e;
         } catch (Exception e) {
