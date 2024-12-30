@@ -1,10 +1,10 @@
-package com.example.url_shortening.controller;
+package com.example.url_shortening.url.controller;
 
-import com.example.url_shortening.model.Url;
-import com.example.url_shortening.model.dto.UrlDto;
-import com.example.url_shortening.model.dto.UrlErrorResponseDto;
-import com.example.url_shortening.model.dto.UrlResponseDto;
-import com.example.url_shortening.service.UrlService;
+import com.example.url_shortening.url.model.Url;
+import com.example.url_shortening.url.dto.UrlDto;
+import com.example.url_shortening.url.dto.UrlErrorResponseDto;
+import com.example.url_shortening.url.dto.UrlResponseDto;
+import com.example.url_shortening.url.service.UrlService;
 import io.micrometer.common.util.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

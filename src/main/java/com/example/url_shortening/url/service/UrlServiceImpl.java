@@ -1,4 +1,4 @@
-package com.example.url_shortening.service;
+package com.example.url_shortening.url.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.sqids.Sqids;
 
-import com.example.url_shortening.model.Url;
-import com.example.url_shortening.model.dto.UrlDto;
-import com.example.url_shortening.model.exception.UrlAlreadyExistsException;
-import com.example.url_shortening.model.exception.UrlException;
-import com.example.url_shortening.repository.UrlRepository;
+import com.example.url_shortening.url.model.Url;
+import com.example.url_shortening.url.dto.UrlDto;
+import com.example.url_shortening.url.exception.UrlAlreadyExistsException;
+import com.example.url_shortening.url.exception.UrlException;
+import com.example.url_shortening.url.repository.UrlRepository;
 
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,11 +1,11 @@
-package com.example.url_shortening.model.exception;
+package com.example.url_shortening.url.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.example.url_shortening.model.dto.UrlErrorResponseDto;
+import com.example.url_shortening.url.dto.UrlErrorResponseDto;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

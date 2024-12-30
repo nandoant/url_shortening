@@ -1,4 +1,4 @@
-package com.example.url_shortening.model.exception;
+package com.example.url_shortening.url.exception;
 
 public class UrlAlreadyExistsException extends Exception {
 
