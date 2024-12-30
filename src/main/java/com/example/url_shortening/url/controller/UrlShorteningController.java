@@ -1,134 +1,108 @@
 package com.example.url_shortening.url.controller;
 
-import com.example.url_shortening.url.model.Url;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import com.example.url_shortening.url.dto.UrlDto;
 import com.example.url_shortening.url.dto.UrlErrorResponseDto;
 import com.example.url_shortening.url.dto.UrlResponseDto;
+import com.example.url_shortening.url.exception.BaseUrlException;
+import com.example.url_shortening.url.exception.UrlErrorCode;
+import com.example.url_shortening.url.model.Url;
 import com.example.url_shortening.url.service.UrlService;
-import io.micrometer.common.util.StringUtils;
+
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api/v1/urls")
-@RequiredArgsConstructor
-@Tag(name = "URL Shortening",
-     description = "API for managing URL shortening operations including creation and redirection")
+@RequestMapping(value = "/api/v1/url")
+@Tag(name = "URL Shortening", 
+    description = "API endpoints for managing URL shortening")
 public class UrlShorteningController {
-
-    private static final String URL_NOT_FOUND = "URL does not exist or it might have expired.";
-    private static final String INVALID_URL = "Invalid URL. Please try again.";
-    private static final String URL_EXPIRED = "URL has expired.";
 
     private final UrlService urlService;
 
-    @PostMapping(value = "/shorten", consumes = "application/json", produces = "application/json")
-    @Operation(
-        summary = "Generate short URL",
-        description = "Creates a shortened version of a provided URL with optional expiration time and custom short link"
-    )
-    @ApiResponses(value = {
+    public UrlShorteningController(UrlService urlService) {
+        this.urlService = urlService;
+    }
+
+    @PostMapping(value = "/shorten", produces = "application/json", consumes = "application/json")
+    @Operation(summary = "Create shortened URL", 
+                description = "Create a shortened URL from the provided URL")
+    @ApiResponses({
         @ApiResponse(
-            responseCode = "200",
+            responseCode = "201",
             description = "URL successfully shortened",
             content = @Content(schema = @Schema(implementation = UrlResponseDto.class))
         ),
         @ApiResponse(
             responseCode = "400",
-            description = "Invalid URL or request parameters",
+            description = "Invalid URL format or parameters",
             content = @Content(schema = @Schema(implementation = UrlErrorResponseDto.class))
         ),
         @ApiResponse(
-                responseCode = "409",
-                description = "Suggested short link is already in use",
-                content = @Content(schema = @Schema(implementation = UrlErrorResponseDto.class))
+            responseCode = "409",
+            description = "Custom alias already in use",
+            content = @Content(schema = @Schema(implementation = UrlErrorResponseDto.class))
         )
     })
-    public ResponseEntity<Object> generateShortLink(
-        @Valid @RequestBody 
-        @Parameter(description = "URL details for shortening", required = true)
-        UrlDto urlDto) throws Exception {
-        Url newShortLink = urlService.generateShortLink(urlDto);
-        
-        if (newShortLink != null) {
+    public ResponseEntity<UrlResponseDto> shortenUrl(@Valid @RequestBody UrlDto urlDto) {
+        try {
+            Url shortenedUrl = urlService.generateShortLink(urlDto);
             UrlResponseDto response = UrlResponseDto.builder()
-                    .originalUrl(newShortLink.getLongUrl())
-                    .shortLink(newShortLink.getShortUrl())
-                    .expirationDate(newShortLink.getExpirationDate())
+                    .originalUrl(shortenedUrl.getLongUrl())
+                    .shortLink(shortenedUrl.getShortUrl())
+                    .expirationDate(shortenedUrl.getExpirationDate())
                     .build();
-            
-            return ResponseEntity.ok(response);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (BaseUrlException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseUrlException(UrlErrorCode.SYSTEM_ERROR);
         }
-        
-        return ResponseEntity.badRequest()
-                .body(createErrorResponse(HttpStatus.BAD_REQUEST.value(), INVALID_URL));
     }
 
-
-    @GetMapping(value = "/{shortLink}", produces = "application/json")
-    @Operation(
-        summary = "Redirect to original URL",
-        description = "Redirects to the original URL based on the provided short link")
-    @ApiResponses(value = {
+    @GetMapping(value = "/{shortUrl}", produces = "application/json")
+    @Operation(summary = "Get original URL", 
+                description = "Get the original URL from the shortened URL")
+    @ApiResponses({
         @ApiResponse(
-            responseCode = "302",
-            description = "Redirect to original URL",
-            content = @Content(schema = @Schema(hidden = true))
+            responseCode = "200",
+            description = "Original URL found",
+            content = @Content(schema = @Schema(implementation = UrlResponseDto.class))
         ),
         @ApiResponse(
             responseCode = "404",
-            description = "Short link not found",
+            description = "Short URL not found",
             content = @Content(schema = @Schema(implementation = UrlErrorResponseDto.class))
         ),
         @ApiResponse(
             responseCode = "410",
-            description = "Short link has expired",
+            description = "URL has expired",
             content = @Content(schema = @Schema(implementation = UrlErrorResponseDto.class))
         )
     })
-    public ResponseEntity<Object> redirectToOriginalUrl(
-            @PathVariable String shortLink,
-            HttpServletResponse response) throws IOException {
+    public ResponseEntity<UrlResponseDto> getOriginalUrl(@PathVariable String shortUrl) {
+        try {
+            Url url = urlService.getEncodedUrl(shortUrl);
 
-        if (StringUtils.isEmpty(shortLink)) {
-            return ResponseEntity.badRequest()
-                    .body(createErrorResponse(HttpStatus.BAD_REQUEST.value(), INVALID_URL));
-        }
-
-        Url urlFound = urlService.getEncodedUrl(shortLink);
-
-        if (urlFound == null) {
-            return ResponseEntity.notFound()
+            UrlResponseDto response = UrlResponseDto.builder()
+                    .originalUrl(url.getLongUrl())
+                    .shortLink(url.getShortUrl())
+                    .expirationDate(url.getExpirationDate())
                     .build();
+            return ResponseEntity.ok(response);
+        } catch (BaseUrlException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseUrlException(UrlErrorCode.SYSTEM_ERROR);
         }
-
-        if (urlFound.getExpirationDate().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.status(HttpStatus.GONE)
-                    .body(createErrorResponse(HttpStatus.GONE.value(), URL_EXPIRED));
-        }
-
-        response.sendRedirect(urlFound.getLongUrl());
-        return null;
-    }
-
-    private UrlErrorResponseDto createErrorResponse(int status, String message) {
-        return UrlErrorResponseDto.builder()
-                .status(String.valueOf(status))
-                .error(message)
-                .build();
     }
 }
