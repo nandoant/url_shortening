@@ -9,8 +9,8 @@ import org.sqids.Sqids;
 
 import com.example.url_shortening.url.model.Url;
 import com.example.url_shortening.url.dto.UrlDto;
-import com.example.url_shortening.url.exception.UrlAlreadyExistsException;
-import com.example.url_shortening.url.exception.UrlException;
+import com.example.url_shortening.url.exception.BaseUrlException;
+import com.example.url_shortening.url.exception.UrlErrorCode;
 import com.example.url_shortening.url.repository.UrlRepository;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +41,10 @@ public class UrlServiceImpl implements UrlService {
 
     private void validateUrlDto(UrlDto urlDto) {
         if (urlDto == null) {
-            throw new UrlException("UrlDto cannot be null");
+            throw new BaseUrlException(UrlErrorCode.VALIDATION_ERROR);
         }
         if (!urlDto.isValidUrl()) {
-            throw new UrlException("Invalid URL format");
+            throw new BaseUrlException(UrlErrorCode.INVALID_URL);
         }
     }
 
@@ -63,7 +63,7 @@ public class UrlServiceImpl implements UrlService {
         return creationDate.plusSeconds(effectiveExpiration);
     }
 
-    private String createShortUrl(UrlDto urlDto) throws UrlAlreadyExistsException {
+    private String createShortUrl(UrlDto urlDto) {
         if (StringUtils.hasText(urlDto.getSuggestedShortLink())) {
             validateSuggestedShortLink(urlDto.getSuggestedShortLink());
             return urlDto.getSuggestedShortLink();
@@ -71,9 +71,9 @@ public class UrlServiceImpl implements UrlService {
         return generateUniqueShortUrl();
     }
 
-    private void validateSuggestedShortLink(String suggestedShortLink) throws UrlAlreadyExistsException {
+    private void validateSuggestedShortLink(String suggestedShortLink) {
         if (urlRepository.findByShortUrl(suggestedShortLink) != null) {
-            throw new UrlAlreadyExistsException("Suggested short link already exists");
+            throw new BaseUrlException(UrlErrorCode.DUPLICATE_SHORT_LINK);
         }
     }
 

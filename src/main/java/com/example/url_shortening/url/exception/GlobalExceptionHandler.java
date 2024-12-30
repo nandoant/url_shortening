@@ -2,42 +2,34 @@ package com.example.url_shortening.url.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.example.url_shortening.url.dto.UrlErrorResponseDto;
 
-@ControllerAdvice
+import lombok.extern.slf4j.Slf4j;
+
+@RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UrlAlreadyExistsException.class)
-    public ResponseEntity<UrlErrorResponseDto> handleUrlAlreadyExistsException(UrlAlreadyExistsException ex) {
+    @ExceptionHandler(BaseUrlException.class)
+    public ResponseEntity<UrlErrorResponseDto> handleUrlExceptions(BaseUrlException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(createErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
-    }
-
-    @ExceptionHandler(UrlException.class)
-    public ResponseEntity<UrlErrorResponseDto> handleUrlException(UrlException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(createErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
+            .status(ex.getErrorCode().getStatus())
+            .body(new UrlErrorResponseDto(
+                ex.getErrorCode().getStatus().value(),
+                ex.getMessage()
+            ));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<UrlErrorResponseDto> handleGenericException(Exception ex) {
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(createErrorResponse(
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(), 
-                    "An unexpected error occurred"
-                ));
-    }
-
-    private UrlErrorResponseDto createErrorResponse(int status, String message) {
-        return UrlErrorResponseDto.builder()
-                .status(String.valueOf(status))
-                .error(message)
-                .build();
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(new UrlErrorResponseDto(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                UrlErrorCode.SYSTEM_ERROR.getMessage()
+            ));
     }
 }
