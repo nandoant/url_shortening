@@ -9,7 +9,6 @@ import io.micrometer.common.util.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -27,7 +26,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/v1/urls")
 @RequiredArgsConstructor
-@Tag(name = "URL Shortening API", 
+@Tag(name = "URL Shortening",
      description = "API for managing URL shortening operations including creation and redirection")
 public class UrlShorteningController {
 
@@ -37,7 +36,7 @@ public class UrlShorteningController {
 
     private final UrlService urlService;
 
-    @PostMapping("/shorten")
+    @PostMapping(value = "/shorten", consumes = "application/json", produces = "application/json")
     @Operation(
         summary = "Generate short URL",
         description = "Creates a shortened version of a provided URL with optional expiration time and custom short link"
@@ -46,27 +45,17 @@ public class UrlShorteningController {
         @ApiResponse(
             responseCode = "200",
             description = "URL successfully shortened",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = UrlResponseDto.class),
-                examples = @ExampleObject(
-                    value = """
-                    {
-                      "originalUrl": "https://www.example.com",
-                      "shortLink": "abc123",
-                      "expirationDate": "2024-02-01T12:00:00"
-                    }
-                    """
-                )
-            )
+            content = @Content(schema = @Schema(implementation = UrlResponseDto.class))
         ),
         @ApiResponse(
             responseCode = "400",
             description = "Invalid URL or request parameters",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = UrlErrorResponseDto.class)
-            )
+            content = @Content(schema = @Schema(implementation = UrlErrorResponseDto.class))
+        ),
+        @ApiResponse(
+                responseCode = "409",
+                description = "Suggested short link is already in use",
+                content = @Content(schema = @Schema(implementation = UrlErrorResponseDto.class))
         )
     })
     public ResponseEntity<Object> generateShortLink(
@@ -89,10 +78,28 @@ public class UrlShorteningController {
                 .body(createErrorResponse(HttpStatus.BAD_REQUEST.value(), INVALID_URL));
     }
 
-    @GetMapping("/{shortLink}")
-    @Operation(summary = "Redirect to original URL")
-    @ApiResponse(responseCode = "302", description = "Successful redirect")
-    @ApiResponse(responseCode = "404", description = "URL not found or expired")
+
+    @GetMapping(value = "/{shortLink}", produces = "application/json")
+    @Operation(
+        summary = "Redirect to original URL",
+        description = "Redirects to the original URL based on the provided short link")
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "302",
+            description = "Redirect to original URL",
+            content = @Content(schema = @Schema(hidden = true))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Short link not found",
+            content = @Content(schema = @Schema(implementation = UrlErrorResponseDto.class))
+        ),
+        @ApiResponse(
+            responseCode = "410",
+            description = "Short link has expired",
+            content = @Content(schema = @Schema(implementation = UrlErrorResponseDto.class))
+        )
+    })
     public ResponseEntity<Object> redirectToOriginalUrl(
             @PathVariable String shortLink,
             HttpServletResponse response) throws IOException {
