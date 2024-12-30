@@ -22,6 +22,11 @@ public class UrlErrorResponseDto {
     public UrlErrorResponseDto() {
     }
 
+    public UrlErrorResponseDto(int status, String error) {
+        this.status = String.valueOf(status);
+        this.error = error;
+    }
+
     public String getStatus() {
         return status;
     }
