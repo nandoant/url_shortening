@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.url_shortening.url.dto.UrlDto;
 import com.example.url_shortening.url.dto.UrlErrorResponseDto;
 import com.example.url_shortening.url.dto.UrlResponseDto;
-import com.example.url_shortening.url.exception.BaseUrlException;
+import com.example.url_shortening.exception.BaseException;
 import com.example.url_shortening.url.exception.UrlErrorCode;
 import com.example.url_shortening.url.model.Url;
 import com.example.url_shortening.url.service.UrlService;
@@ -61,10 +61,10 @@ public class UrlShorteningController {
                     .expirationDate(shortenedUrl.getExpirationDate())
                     .build();
             return ResponseEntity.ok(response);
-        } catch (BaseUrlException e) {
+        } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
-            throw new BaseUrlException(UrlErrorCode.SYSTEM_ERROR);
+            throw new BaseException(UrlErrorCode.SYSTEM_ERROR);
         }
     }
 
@@ -95,10 +95,10 @@ public class UrlShorteningController {
                 response.sendRedirect(url.getLongUrl());
 
             return null;
-        } catch (BaseUrlException e) {
+        } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
-            throw new BaseUrlException(UrlErrorCode.SYSTEM_ERROR);
+            throw new BaseException(UrlErrorCode.SYSTEM_ERROR);
         }
     }
 }
