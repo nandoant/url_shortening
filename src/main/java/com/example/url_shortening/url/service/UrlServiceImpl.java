@@ -9,7 +9,7 @@ import org.sqids.Sqids;
 
 import com.example.url_shortening.url.model.Url;
 import com.example.url_shortening.url.dto.UrlDto;
-import com.example.url_shortening.url.exception.BaseUrlException;
+import com.example.url_shortening.exception.BaseException;
 import com.example.url_shortening.url.exception.UrlErrorCode;
 import com.example.url_shortening.url.repository.UrlRepository;
 
@@ -41,10 +41,10 @@ public class UrlServiceImpl implements UrlService {
 
     private void validateUrlDto(UrlDto urlDto) {
         if (urlDto == null) {
-            throw new BaseUrlException(UrlErrorCode.VALIDATION_ERROR);
+            throw new BaseException(UrlErrorCode.VALIDATION_ERROR);
         }
         if (!urlDto.isValidUrl()) {
-            throw new BaseUrlException(UrlErrorCode.INVALID_URL);
+            throw new BaseException(UrlErrorCode.INVALID_URL);
         }
     }
 
@@ -73,7 +73,7 @@ public class UrlServiceImpl implements UrlService {
 
     private void validateSuggestedShortLink(String suggestedShortLink) {
         if (urlRepository.findByShortUrl(suggestedShortLink) != null) {
-            throw new BaseUrlException(UrlErrorCode.DUPLICATE_SHORT_LINK);
+            throw new BaseException(UrlErrorCode.DUPLICATE_SHORT_LINK);
         }
     }
 
@@ -87,11 +87,11 @@ public class UrlServiceImpl implements UrlService {
     public Url getEncodedUrl(String shortUrl) {
         Url shortLink = urlRepository.findByShortUrl(shortUrl);
         if (shortLink == null) {
-            throw new BaseUrlException(UrlErrorCode.URL_NOT_FOUND);
+            throw new BaseException(UrlErrorCode.URL_NOT_FOUND);
         }
 
         if (shortLink.getExpirationDate().isBefore(LocalDateTime.now())) {
-            throw new BaseUrlException(UrlErrorCode.URL_EXPIRED);
+            throw new BaseException(UrlErrorCode.URL_EXPIRED);
         }
 
         return shortLink;
