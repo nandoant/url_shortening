@@ -70,12 +70,12 @@ public class UrlShorteningController {
 
     @GetMapping(value = "/{shortUrl}", produces = "application/json")
     @Operation(summary = "Get original URL", 
-                description = "Get the original URL from the shortened URL")
+                description = "Get redirected to the original URL from the shortened URL")
     @ApiResponses({
         @ApiResponse(
-            responseCode = "200",
-            description = "Original URL found",
-            content = @Content(schema = @Schema(implementation = UrlResponseDto.class))
+            responseCode = "302",
+            description = "Redirect to original URL",
+            content = @Content(schema = @Schema(hidden = true))
         ),
         @ApiResponse(
             responseCode = "404",
