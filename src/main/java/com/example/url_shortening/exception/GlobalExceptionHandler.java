@@ -1,6 +1,5 @@
 package com.example.url_shortening.exception;
 
-import com.example.url_shortening.url.exception.BaseUrlException;
 import com.example.url_shortening.url.exception.UrlErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(BaseUrlException.class)
-    public ResponseEntity<UrlErrorResponseDto> handleUrlExceptions(BaseUrlException ex) {
+    @ExceptionHandler(BaseException.class)
+    public ResponseEntity<UrlErrorResponseDto> handleUrlExceptions(BaseException ex) {
         return ResponseEntity
             .status(ex.getErrorCode().getStatus())
             .body(new UrlErrorResponseDto(
