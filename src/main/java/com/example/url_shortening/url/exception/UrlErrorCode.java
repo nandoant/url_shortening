@@ -1,8 +1,9 @@
 package com.example.url_shortening.url.exception;
 
+import com.example.url_shortening.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public enum UrlErrorCode {
+public enum UrlErrorCode implements ErrorCode {
     URL_NOT_FOUND("URL does not exist or expired", HttpStatus.NOT_FOUND),
     INVALID_URL("Invalid URL format", HttpStatus.BAD_REQUEST),
     URL_EXPIRED("URL has expired", HttpStatus.GONE),
