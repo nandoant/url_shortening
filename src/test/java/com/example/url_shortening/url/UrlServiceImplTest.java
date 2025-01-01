@@ -25,7 +25,7 @@ import com.example.url_shortening.url.service.UrlServiceImpl;
 @ExtendWith(MockitoExtension.class)
 public class UrlServiceImplTest {
 
-        @Mock
+    @Mock
     private UrlRepository urlRepository;
 
     private UrlServiceImpl urlService;
