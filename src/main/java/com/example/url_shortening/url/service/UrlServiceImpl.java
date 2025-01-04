@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.sqids.Sqids;
 
-import com.example.url_shortening.url.model.Url;
+import com.example.url_shortening.url.entity.Url;
 import com.example.url_shortening.url.dto.UrlDto;
 import com.example.url_shortening.url.repository.UrlRepository;
 

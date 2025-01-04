@@ -9,7 +9,7 @@ import com.example.url_shortening.url.dto.UrlDto;
 import com.example.url_shortening.url.dto.UrlErrorResponseDto;
 import com.example.url_shortening.url.dto.UrlResponseDto;
 import com.example.url_shortening.exception.exceptions.ServiceLayerException;
-import com.example.url_shortening.url.model.Url;
+import com.example.url_shortening.url.entity.Url;
 import com.example.url_shortening.url.service.UrlService;
 
 import io.swagger.v3.oas.annotations.Operation;
