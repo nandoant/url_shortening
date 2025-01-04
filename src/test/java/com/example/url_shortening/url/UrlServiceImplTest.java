@@ -15,7 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.example.url_shortening.exception.BaseException;
+import com.example.url_shortening.exception.ServiceLayerException;
 import com.example.url_shortening.url.dto.UrlDto;
 import com.example.url_shortening.url.exception.UrlErrorCode;
 import com.example.url_shortening.url.model.Url;
@@ -62,7 +62,7 @@ public class UrlServiceImplTest {
         UrlDto urlDto = new UrlDto("invalid-url", 3600, null);
 
         // Act & Assert
-        BaseException exception = assertThrows(BaseException.class, 
+        ServiceLayerException exception = assertThrows(ServiceLayerException.class,
             () -> urlService.generateShortLink(urlDto));
         assertEquals(UrlErrorCode.INVALID_URL, exception.getErrorCode());
     }
@@ -98,7 +98,7 @@ public class UrlServiceImplTest {
         when(urlRepository.findByShortUrl(shortUrl)).thenReturn(expiredUrl);
 
         // Act & Assert
-        BaseException exception = assertThrows(BaseException.class, 
+        ServiceLayerException exception = assertThrows(ServiceLayerException.class,
             () -> urlService.getEncodedUrl(shortUrl));
         assertEquals(UrlErrorCode.URL_EXPIRED, exception.getErrorCode());
     }
@@ -110,7 +110,7 @@ public class UrlServiceImplTest {
         when(urlRepository.findByShortUrl(shortUrl)).thenReturn(null);
 
         // Act & Assert
-        BaseException exception = assertThrows(BaseException.class, 
+        ServiceLayerException exception = assertThrows(ServiceLayerException.class,
             () -> urlService.getEncodedUrl(shortUrl));
         assertEquals(UrlErrorCode.URL_NOT_FOUND, exception.getErrorCode());
     }

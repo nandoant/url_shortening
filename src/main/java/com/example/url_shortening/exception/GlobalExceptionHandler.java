@@ -1,6 +1,5 @@
 package com.example.url_shortening.exception;
 
-import com.example.url_shortening.url.exception.UrlErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -33,23 +32,64 @@ public class GlobalExceptionHandler {
             ));
     }
 
-    @ExceptionHandler(BaseException.class)
-    public ResponseEntity<UrlErrorResponseDto> handleUrlExceptions(BaseException ex) {
+    @ExceptionHandler(ServiceLayerException.class)
+    public ResponseEntity<UrlErrorResponseDto> handleUrlExceptions(ServiceLayerException ex) {
         return ResponseEntity
-            .status(ex.getErrorCode().getStatus())
+            .status(ex.getStatusCode())
             .body(new UrlErrorResponseDto(
-                ex.getErrorCode().getStatus().value(),
+                ex.getStatusCode().value(),
                 ex.getMessage()
             ));
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<UrlErrorResponseDto> handleGenericException(Exception ex) {
+    @ExceptionHandler(EmptyValueException.class)
+    public ResponseEntity<UrlErrorResponseDto> handleEmptyValueException(EmptyValueException ex) {
         return ResponseEntity
-            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(new UrlErrorResponseDto(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                UrlErrorCode.SYSTEM_ERROR.getMessage()
-            ));
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new UrlErrorResponseDto(
+                        HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                        ex.getMessage()
+                ));
     }
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<UrlErrorResponseDto> handleResourceAlreadyExists(ResourceAlreadyExistsException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new UrlErrorResponseDto(
+                        HttpStatus.CONFLICT.value(),
+                        ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<UrlErrorResponseDto> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new UrlErrorResponseDto(
+                        HttpStatus.NOT_FOUND.value(),
+                        ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(MethodNotAllowedException.class)
+    public ResponseEntity<UrlErrorResponseDto> handleMethodNotAllowedException(MethodNotAllowedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(new UrlErrorResponseDto(
+                        HttpStatus.METHOD_NOT_ALLOWED.value(),
+                        ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(SystemErrorException.class)
+    public ResponseEntity<UrlErrorResponseDto> handleSystemErrorException(SystemErrorException ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new UrlErrorResponseDto(
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        ex.getMessage()
+                ));
+    }
+
 }

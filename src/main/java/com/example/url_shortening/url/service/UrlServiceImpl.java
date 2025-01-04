@@ -3,14 +3,17 @@ package com.example.url_shortening.url.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.url_shortening.exception.EmptyValueException;
+import com.example.url_shortening.exception.ResourceAlreadyExistsException;
+import com.example.url_shortening.exception.ResourceNotFoundException;
+import com.example.url_shortening.url.exception.InvalidUrlException;
+import com.example.url_shortening.url.exception.UrlExpiredException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.sqids.Sqids;
 
 import com.example.url_shortening.url.model.Url;
 import com.example.url_shortening.url.dto.UrlDto;
-import com.example.url_shortening.exception.BaseException;
-import com.example.url_shortening.url.exception.UrlErrorCode;
 import com.example.url_shortening.url.repository.UrlRepository;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -40,12 +43,10 @@ public class UrlServiceImpl implements UrlService {
     }
 
     private void validateUrlDto(UrlDto urlDto) {
-        if (urlDto == null) {
-            throw new BaseException(UrlErrorCode.VALIDATION_ERROR);
-        }
-        if (!urlDto.isValidUrl()) {
-            throw new BaseException(UrlErrorCode.INVALID_URL);
-        }
+        if(urlDto.getUrl().trim().isBlank())
+            throw new EmptyValueException("Url should not be blank");
+        if(!urlDto.isValidUrl())
+            throw new InvalidUrlException("Url should be valid");
     }
 
     private Url createUrlEntity(UrlDto urlDto, String encodedUrl) {
@@ -73,7 +74,7 @@ public class UrlServiceImpl implements UrlService {
 
     private void validateSuggestedShortLink(String suggestedShortLink) {
         if (urlRepository.findByShortUrl(suggestedShortLink) != null) {
-            throw new BaseException(UrlErrorCode.DUPLICATE_SHORT_LINK);
+            throw new ResourceAlreadyExistsException("ShortUrl already exists");
         }
     }
 
@@ -87,11 +88,11 @@ public class UrlServiceImpl implements UrlService {
     public Url getEncodedUrl(String shortUrl) {
         Url shortLink = urlRepository.findByShortUrl(shortUrl);
         if (shortLink == null) {
-            throw new BaseException(UrlErrorCode.URL_NOT_FOUND);
+            throw new ResourceNotFoundException("Url does not exist");
         }
 
         if (shortLink.getExpirationDate().isBefore(LocalDateTime.now())) {
-            throw new BaseException(UrlErrorCode.URL_EXPIRED);
+            throw new UrlExpiredException("Url has expired");
         }
 
         return shortLink;

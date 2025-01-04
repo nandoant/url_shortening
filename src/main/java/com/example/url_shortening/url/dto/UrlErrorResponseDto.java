@@ -8,31 +8,31 @@ import lombok.Builder;
 public class UrlErrorResponseDto {
     @Schema(description = "Status of the response",
             example = "400")
-    private String status;
+    private String statusCode;
 
     @Schema(description = "Error message",
             example = "Invalid URL")
     private String error;
 
-    public UrlErrorResponseDto(String status, String error) {
-        this.status = status;
+    public UrlErrorResponseDto(String statusCode, String error) {
+        this.statusCode = statusCode;
         this.error = error;
     }
 
     public UrlErrorResponseDto() {
     }
 
-    public UrlErrorResponseDto(int status, String error) {
-        this.status = String.valueOf(status);
+    public UrlErrorResponseDto(int statusCode, String error) {
+        this.statusCode = String.valueOf(statusCode);
         this.error = error;
     }
 
-    public String getStatus() {
-        return status;
+    public String getStatusCode() {
+        return statusCode;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
     }
 
     public String getError() {
@@ -46,7 +46,7 @@ public class UrlErrorResponseDto {
     @Override
     public String toString() {
         return "UrlErrorResponseDto{" +
-                "status='" + status + '\'' +
+                "status='" + statusCode + '\'' +
                 ", error='" + error + '\'' +
                 '}';
     }
