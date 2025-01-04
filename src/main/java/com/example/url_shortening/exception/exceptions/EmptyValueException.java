@@ -1,4 +1,4 @@
-package com.example.url_shortening.exception;
+package com.example.url_shortening.exception.exceptions;
 
 import lombok.NoArgsConstructor;
 

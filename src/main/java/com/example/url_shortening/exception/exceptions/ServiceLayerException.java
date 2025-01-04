@@ -1,7 +1,6 @@
-package com.example.url_shortening.exception;
+package com.example.url_shortening.exception.exceptions;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Data

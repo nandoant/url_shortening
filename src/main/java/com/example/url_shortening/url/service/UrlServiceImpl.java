@@ -3,9 +3,9 @@ package com.example.url_shortening.url.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.url_shortening.exception.EmptyValueException;
-import com.example.url_shortening.exception.ResourceAlreadyExistsException;
-import com.example.url_shortening.exception.ResourceNotFoundException;
+import com.example.url_shortening.exception.exceptions.EmptyValueException;
+import com.example.url_shortening.exception.exceptions.ResourceAlreadyExistsException;
+import com.example.url_shortening.exception.exceptions.ResourceNotFoundException;
 import com.example.url_shortening.url.exception.InvalidUrlException;
 import com.example.url_shortening.url.exception.UrlExpiredException;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.example.url_shortening.url.exception;
 
-import com.example.url_shortening.exception.ServiceLayerException;
+import com.example.url_shortening.exception.exceptions.ServiceLayerException;
 import org.springframework.http.HttpStatus;
 
 

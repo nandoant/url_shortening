@@ -15,7 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.example.url_shortening.exception.ServiceLayerException;
+import com.example.url_shortening.exception.exceptions.ServiceLayerException;
 import com.example.url_shortening.url.dto.UrlDto;
 import com.example.url_shortening.url.exception.UrlErrorCode;
 import com.example.url_shortening.url.model.Url;

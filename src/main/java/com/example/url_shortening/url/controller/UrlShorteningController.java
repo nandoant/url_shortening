@@ -1,6 +1,6 @@
 package com.example.url_shortening.url.controller;
 
-import com.example.url_shortening.exception.SystemErrorException;
+import com.example.url_shortening.exception.exceptions.SystemErrorException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.url_shortening.url.dto.UrlDto;
 import com.example.url_shortening.url.dto.UrlErrorResponseDto;
 import com.example.url_shortening.url.dto.UrlResponseDto;
-import com.example.url_shortening.exception.ServiceLayerException;
+import com.example.url_shortening.exception.exceptions.ServiceLayerException;
 import com.example.url_shortening.url.model.Url;
 import com.example.url_shortening.url.service.UrlService;
 

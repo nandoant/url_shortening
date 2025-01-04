@@ -1,4 +1,4 @@
-package com.example.url_shortening.exception;
+package com.example.url_shortening.exception.exceptions;
 
 public class ResourceAlreadyExistsException extends RuntimeException {
     public ResourceAlreadyExistsException(String message) {
