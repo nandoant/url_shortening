@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "Data Transfer Object for URL operations")
 public class UrlDto {
+    
     @Schema(description = "Original URL to be shortened", 
             example = "https://www.example.com")
     @NotBlank(message = "URL cannot be empty or blank")
