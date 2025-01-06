@@ -2,6 +2,8 @@ package com.example.url_shortening.url.controller;
 
 import com.example.url_shortening.exception.exceptions.SystemErrorException;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.web.servlet.view.RedirectView;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/api/v1/url")
@@ -54,14 +59,21 @@ public class UrlShorteningController {
     })
     public ResponseEntity<UrlResponseDto> shortenUrl(@Valid @RequestBody UrlDto urlDto) {
         try {
-            Url shortenedUrl = urlService.generateShortLink(urlDto);
+
+            Url generatedUrl = urlService.generateShortLink(urlDto);
+            URI shortenedUrl = URI.create(generatedUrl.getShortUrl());
+
             UrlResponseDto response = UrlResponseDto.builder()
-                    .originalUrl(shortenedUrl.getLongUrl())
-                    .shortLink(shortenedUrl.getShortUrl())
-                    .expirationDate(shortenedUrl.getExpirationDate())
+                    .originalUrl(generatedUrl.getLongUrl())
+                    .shortLink(generatedUrl.getShortUrl())
+                    .expirationDate(generatedUrl.getExpirationDate())
                     .build();
-            return ResponseEntity.ok(response);
-        } catch (ServiceLayerException e) {
+
+            return ResponseEntity
+                    .created(shortenedUrl)
+                    .body(response);
+
+        } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new SystemErrorException();
@@ -92,10 +104,12 @@ public class UrlShorteningController {
         try {
             Url url = urlService.getEncodedUrl(shortUrl);
 
-                response.sendRedirect(url.getLongUrl());
+            return ResponseEntity
+                    .status(HttpStatus.FOUND)
+                    .header(HttpHeaders.LOCATION, url.getLongUrl())
+                    .build();
 
-            return null;
-        } catch (ServiceLayerException e) {
+        } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new SystemErrorException();
