@@ -8,11 +8,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @DataJpaTest
+@ActiveProfiles("test")
 public class UrlRepositoryTest {
    
     @Autowired 
@@ -74,6 +78,24 @@ public class UrlRepositoryTest {
     public void UrlRepository_FindByShortUrl_ReturnNull() {
         Url foundUrl = urlRepository.findByShortUrl("nonexistent");
         assertThat(foundUrl).isNull();
+    }
+
+    @Test
+    @DisplayName("Should return a list of 2 urls")
+    public void UrlRepository_findAll_ReturnUrls() {
+            Url testUrl2 = Url.builder()
+                    .longUrl(LONG_URL+"2")
+                    .shortUrl(SHORT_URL+"2")
+                    .creationDate(now)
+                    .expirationDate(now.plusDays(7))
+                    .build();
+
+            urlRepository.save(testUrl);
+            urlRepository.save(testUrl2);
+            List<Url> urls = urlRepository.findAll();
+
+            assertThat(urls).hasSize(2);
+            assertThat(urls).contains(testUrl, testUrl2);
     }
 
     @Test
