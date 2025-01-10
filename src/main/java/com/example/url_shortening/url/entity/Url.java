@@ -1,9 +1,7 @@
 package com.example.url_shortening.url.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +15,8 @@ import java.time.LocalDateTime;
 public class Url {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "url_seq")
+    @SequenceGenerator(name = "url_seq", sequenceName = "url_seq", allocationSize = 1)
     private long id;
 
     @Lob
